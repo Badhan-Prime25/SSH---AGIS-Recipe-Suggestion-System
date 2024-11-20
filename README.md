@@ -1,5 +1,6 @@
 # SSH---AGIS-Recipe-Suggestion-System
 Suggests recipes from data provided by SSH Camera
+
 In shared student accommodations, meal planning and grocery management can often be chaotic 
 and inefficient for students, due to multiple housemates sharing food storage spaces and 
 ingredients. Currently, students must manually check their fridges to keep track of ingredients,
