@@ -1,5 +1,3 @@
-# This is the GUI file
-
 import sys
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel, QTableWidget,
