@@ -68,7 +68,7 @@ class Recipe_Suggestions(QMainWindow):
         """Opens a new window showing recipe details when a recipe is clicked."""
         recipe_name = self.sender().item(row, 0).text()
         instructions_window = RecipeDetailsWindow(recipe_name)
-        instructions_window.exec_()
+        instructions_window.exec()
 
 
 class RecipeDetailsWindow(QDialog):
