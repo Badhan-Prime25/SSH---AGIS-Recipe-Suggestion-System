@@ -7,13 +7,13 @@ recipesDatabase = lite.connect('foodDatabase.db')
 repCur = recipesDatabase.cursor()
 
 class Recipe:
-    def __init__(self, name, instructions, ingredients, meal_type):
+    def __init__(self, name, instructions, ingredients, meal_type,prep_time):
         self.name = name
         self.instructions = instructions
         self.ingredients = ingredients
         self.meal_type = meal_type
         #self.vegetarian = vegetarian Database does not have any column with these values
-        #self.prep_time = prep_time
+        self.prep_time = prep_time
 
 def get_recipes():
     # SQL statement to get required data
@@ -22,7 +22,8 @@ def get_recipes():
                         r.recipe_name,
                         r.instructions,
                         GROUP_CONCAT (i.ingredient_name) AS ingredients,
-                        r.meal_type
+                        r.meal_type,
+                        r.prep_time
                     FROM
                         Recipes AS r
                     JOIN 
@@ -36,9 +37,9 @@ def get_recipes():
     recipes =[]
     # Makes an instance for each recipe
     for row in rows:
-        name,instructions,ingredients_list,meal_type = row
+        name,instructions,ingredients_list,meal_type,prep_time = row
         ingredients_list = ingredients_list.split(',')
-        recipes.append(Recipe(name, instructions, ingredients_list, meal_type))
+        recipes.append(Recipe(name, instructions, ingredients_list, meal_type,prep_time))
     return recipes # Returns a lists of instances
 
 
