@@ -21,7 +21,7 @@ def get_recipes():
                     SELECT 
                         r.recipe_name,
                         r.instructions,
-                        GROUP_CONCAT (i.ingredient_name) AS ingredients,
+                        GROUP_CONCAT(ri.quantity || ' ' || i.ingredient_name) AS ingredients,
                         r.meal_type,
                         r.prep_time,
                         r.veg_status
