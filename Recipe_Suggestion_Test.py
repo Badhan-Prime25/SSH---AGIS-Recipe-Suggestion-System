@@ -1,6 +1,6 @@
 import pytest
 from PySide6.QtCore import Qt
-from Recipe_GUI import Recipe_Suggestions  # Ensure the file containing the GUI is named `Recipe_GUI.py`
+from Recipe_GUI import Recipe_Suggestions
 from pytestqt.qtbot import QtBot
 
 
@@ -17,7 +17,7 @@ def test_available_recipes_table(app): # this works
     table = app.available_recipes_table  # Correct reference to the table
     assert table.rowCount() == 3  # Verify 3 rows are present
     assert table.columnCount() == 4  # Verify 4 columns are present
-    assert table.item(0, 0).text() == "White Pasta"  # Verify the first recipe name
+    assert table.item(0, 0).text() == "White Pasta"  # Verify the first recipe name hardcoded data need to change
 
 
 def test_additional_recipes_table(app): # this works
@@ -25,7 +25,8 @@ def test_additional_recipes_table(app): # this works
     table = app.additional_recipes_table  # Correct reference to the table
     assert table.rowCount() == 3  # Verify 3 rows are present
     assert table.columnCount() == 4  # Verify 4 columns are present
-    assert table.item(1, 0).text() == "Apple Pie"  # Verify the second recipe name
+    assert table.item(1, 0).text() == "Apple Pie"  # Verify the second recipe name hardcoded
+
 
 
 def test_recipe_details_window(app, qtbot: QtBot):
@@ -33,11 +34,11 @@ def test_recipe_details_window(app, qtbot: QtBot):
     table = app.available_recipes_table  # Reference the 'Available Recipes' table
     recipe_name = table.item(0, 0).text()  # Get the recipe name from the first row
 
-    # Call show_recipe_details with the table explicitly
-    app.show_recipe_details(0, 0, table)  # Pass the table directly
+    # Simulate a cell click (row 0, column 0) which emits the signal
+    qtbot.mouseClick(table.viewport(), Qt.LeftButton, pos=table.visualRect(table.model().index(0, 0)).center())
 
     # Use qtbot to wait for the window to appear
-    qtbot.waitExposed(app.details_window)  # Wait until the details window is visible
+    qtbot.waitExposed(app.details_window)
 
     # Check if the recipe details window opens
     from PySide6.QtWidgets import QApplication
@@ -47,11 +48,9 @@ def test_recipe_details_window(app, qtbot: QtBot):
         None,
     )
 
-
+    # Assert the details window exists
     assert details_window is not None, "Recipe details window did not open."
     assert details_window.instructions_text.toPlainText().startswith("Instructions for White Pasta:")
 
     # Close the details window
     details_window.close()
-
-
