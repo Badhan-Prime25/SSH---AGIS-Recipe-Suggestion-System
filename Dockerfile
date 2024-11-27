@@ -11,10 +11,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     fonts-dejavu-core xvfb xauth \
     && rm -rf /var/lib/apt/lists/*
 
-# Set environment variables for Qt and X server on Windows
-ENV QT_QPA_PLATFORM_PLUGIN_PATH=/usr/lib/qt/plugins/platforms
-ENV DISPLAY=host.docker.internal:0
-# Use host.docker.internal to connect to the Windows X server
 
 # Copy the application code into the container
 COPY . /app
