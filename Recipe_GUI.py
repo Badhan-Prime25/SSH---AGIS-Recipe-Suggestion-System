@@ -1,8 +1,14 @@
+from keyring.backends.libsecret import available
+
+import Recipe_Logic # get the extrapolated database
 import sys
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel, QTableWidget,
     QTableWidgetItem, QDialog, QFormLayout, QTextEdit, QPushButton
 )
+
+from Recipe_Logic import get_recipes, extract_ingredients
+
 
 class Recipe_Suggestions(QMainWindow):
     def __init__(self):
@@ -10,23 +16,23 @@ class Recipe_Suggestions(QMainWindow):
         self.setWindowTitle("Recipe Suggestion System")
         self.setGeometry(300, 300, 700, 500)
 
+        # Importing all the valid recipes to show student
+        available_recipe = []
+        additional_recipe = []
+        possible, partial = Recipe_Logic.match_ingredients(get_recipes(), extract_ingredients("fridge_ingredients.csv"))
+        for recipes in possible:
+            available_recipe.append([recipes.name,recipes.prep_time,recipes.meal_type,recipes.vegetarian])
+        for recipe in partial:
+            additional_recipe.append([recipe.name,recipe.prep_time,recipe.meal_type,recipe.vegetarian])
+
         # Main widget and layout
         main_widget = QWidget()
         self.setCentralWidget(main_widget)
         layout = QVBoxLayout(main_widget)
-
         # Define headers and data
         headers = ["Recipe Name", "Time", "Meal Type", "Veg/Non-Veg"]
-        available_recipes = [
-            ["White Pasta", "20 Minutes", "Lunch/Dinner", "Non-Veg"],
-            ["Pancakes", "10 Minutes", "Breakfast", "Veg"],
-            ["Chicken Salad", "30 Minutes", "Dinner", "Non-Veg"],
-        ]
-        additional_recipes = [
-            ["Spaghetti Bolognese", "20 Minutes", "Lunch/Dinner", "Non-Veg"],
-            ["Apple Pie", "10 Minutes", "Breakfast", "Veg"],
-            ["Chicken Rice", "30 Minutes", "Dinner", "Non-Veg"],
-        ]
+        available_recipes = available_recipe
+        additional_recipes = additional_recipe
 
         # Available Recipes Table
         layout.addWidget(QLabel("Available Recipes"))
@@ -81,23 +87,13 @@ class RecipeDetailsWindow(QDialog):
 
         # Create layout for the recipe details window
         layout = QFormLayout(self)
-
+        recipes = get_recipes()
         # Hardcoded recipe instructions
         instructions = f"Instructions for {recipe_name}:\n\n"
-        if recipe_name == "White Pasta":
-            instructions += "1. Boil water...\n2. Cook pasta...\n3. Prepare sauce...\n4. Mix and serve."
-        elif recipe_name == "Pancakes":
-            instructions += "1. Mix ingredients...\n2. Heat pan...\n3. Pour batter...\n4. Flip pancakes..."
-        elif recipe_name == "Chicken Salad":
-            instructions += "1. Chop chicken...\n2. Prepare vegetables...\n3. Toss together..."
-        elif recipe_name == "Spaghetti Bolognese":
-            instructions += "1. Cook spaghetti...\n2. Prepare meat sauce...\n3. Combine and serve."
-        elif recipe_name == "Apple Pie":
-            instructions += "1. Prepare the crust...\n2. Mix apples...\n3. Bake and serve."
-        elif recipe_name == "Chicken Rice":
-            instructions += "1. Cook chicken...\n2. Prepare rice...\n3. Mix and serve."
-        else:
-            instructions += "Recipe instructions are not available."
+        for recipe in recipes:
+            if recipe.name == recipe_name:
+                instructions += recipe.instructions
+
 
         # Create a QTextEdit for displaying the recipe instructions
         self.instructions_text = QTextEdit(self)
@@ -114,6 +110,7 @@ class RecipeDetailsWindow(QDialog):
 
 
 if __name__ == "__main__":
+
     app = QApplication(sys.argv)
     window = Recipe_Suggestions()
     window.show()
