@@ -128,10 +128,5 @@ def match_ingredients(recipes, available_ingredients):
     # print(possible_recipes)
     # print(partial_recipes)
 
-possible_recipes, partial_recipes = match_ingredients(get_recipes(), extract_ingredients("fridge_ingredients.csv"))
 
-for recipe in possible_recipes:
-    print("Possible Recipes:", recipe.name)
-for recipe in partial_recipes:
-    print("Partial Recipes:", recipe.name)
 
