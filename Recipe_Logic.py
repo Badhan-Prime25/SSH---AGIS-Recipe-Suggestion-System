@@ -1,6 +1,8 @@
-import sqlite3 as lite
-import csv
 import re
+import sqlite3 as lite
+
+import csv
+
 #import os
 
 # Connects to the recipe Database
@@ -10,11 +12,20 @@ repCur = recipesDatabase.cursor()
 class Recipe:
     def __init__(self, name, instructions, ingredients, meal_type, prep_time, veg):
         self.name = name
-        self.instructions = instructions
         self.ingredients = ingredients
         self.meal_type = meal_type
-        self.vegetarian = veg
-        self.prep_time = prep_time
+        self.instructions = ""
+        if veg == 1:
+            self.vegetarian = "Veg"
+        else:
+            self.vegetarian = "Non-Veg"
+        self.prep_time = str(prep_time) + " minutes"
+        instructionsSplitter  = instructions.split(".")
+        i = 1
+        for instruction in instructionsSplitter:
+            if instruction.strip():
+                self.instructions = self.instructions+str(i)+". " +instruction.strip() +"\n"
+                i += 1
 
 
 def split_ingredient(ingredient):
@@ -54,37 +65,73 @@ def get_recipes():
         name,instructions,ingredients_list,meal_type,prep_time,veg = row
         ingredients_list = ingredients_list.split(',')
         ingredients_2d = [split_ingredient(ingredient) for ingredient in ingredients_list]
-        print(row)
         recipes.append(Recipe(name, instructions, ingredients_2d, meal_type,prep_time,veg))
     return recipes # Returns a lists of instances
 
 
-def extract_ingredients():
+
+def extract_ingredients(file_path):
     ingredients = []
-    with open('ENTER_CSV_FILE.csv', mode = 'r') as file:
+    with open(file_path, mode='r') as file:
         csv_file = csv.reader(file, delimiter=',')
+        next(csv_file)  # Skip the header row
         for row in csv_file:
-            ingredients.extend(row)
-    return ingredients
+            amount = row[0].strip()
+            ingredient = row[1].strip()
+            ingredients.append([amount,ingredient])
+        return ingredients
 
-
-
-
-def match_ingredients(recipes, ingredients):
+def match_ingredients(recipes, available_ingredients):
     possible_recipes = []
     partial_recipes = []
-    ingredients_list = ingredients.split(',')
-    for recipe in recipes:
-        no_ingredients = len(recipe.ingredients)
-        matching_ingredients = []
-        for ingredient in ingredients_list:
-            if ingredient in recipe.ingredients:
-                matching_ingredients.append(ingredient)
-        if len(matching_ingredients) == no_ingredients:
-            possible_recipes.append(recipe)
-        elif len(matching_ingredients) >= no_ingredients * 0.8:
-            partial_recipes.append(recipe)
-    print(possible_recipes)
-    print(partial_recipes)
 
-print(get_recipes())
+    for recipe in recipes:
+        required_ingredients = recipe.ingredients  # 2D array: [[required_amount, ingredient_name], ...]
+        matched_ingredients = 0  # Initialize outside the loop over required_ingredients
+
+        for required_amount, ingredient_name in required_ingredients:
+            # Search for the ingredient in available_ingredients
+            for available_quantity, available_name in available_ingredients:
+                if available_name == ingredient_name:
+                    if available_quantity >= required_amount:
+                        matched_ingredients += 1
+                    break  # Stop searching since we found the ingredient
+            else:
+                # Ingredient not found in available_ingredients
+                continue  # You may want to handle this case differently
+
+        total_ingredients = len(required_ingredients)
+        match_ratio = matched_ingredients / total_ingredients
+
+        if match_ratio == 1.0:
+            possible_recipes.append(recipe)
+        elif match_ratio >= 0.80 or (total_ingredients -1 == matched_ingredients):
+            partial_recipes.append(recipe)
+    return possible_recipes,partial_recipes
+
+# Example usage:
+
+
+
+    # for
+
+    # for recipe in recipes:
+    #     no_ingredients = len(recipe.ingredients)
+    #     matching_ingredients = []
+    #     for ingredient in ingredients_list:
+    #         if ingredient in recipe.ingredients:
+    #             matching_ingredients.append(ingredient)
+    #     if len(matching_ingredients) == no_ingredients:
+    #         possible_recipes.append(recipe)
+    #     elif len(matching_ingredients) >= no_ingredients * 0.8:
+    #         partial_recipes.append(recipe)
+    # print(possible_recipes)
+    # print(partial_recipes)
+
+possible_recipes, partial_recipes = match_ingredients(get_recipes(), extract_ingredients("fridge_ingredients.csv"))
+
+for recipe in possible_recipes:
+    print("Possible Recipes:", recipe.name)
+for recipe in partial_recipes:
+    print("Partial Recipes:", recipe.name)
+
