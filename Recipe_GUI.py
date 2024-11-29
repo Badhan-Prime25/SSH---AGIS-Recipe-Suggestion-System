@@ -67,7 +67,7 @@ class Recipe_Suggestions(QMainWindow):
             for col, value in enumerate(recipe):
                 table.setItem(row, col, QTableWidgetItem(str(value)))
 
-    def show_recipe_details(self, row, col):
+    def show_recipe_details(self, row, col, table=None):
         """Opens a new window showing recipe details when a recipe is clicked."""
         # Determine the sender table and fetch the recipe name
         table = self.sender()
