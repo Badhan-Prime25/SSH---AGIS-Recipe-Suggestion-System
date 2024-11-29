@@ -20,3 +20,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Run the application with Xvfb
 CMD ["xvfb-run", "-a", "python", "Recipe_GUI.py"]
+# connect gui to server

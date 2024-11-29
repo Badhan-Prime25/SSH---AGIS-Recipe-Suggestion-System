@@ -1,4 +1,4 @@
-from keyring.backends.libsecret import available
+
 
 import Recipe_Logic # get the extrapolated database
 import sys
