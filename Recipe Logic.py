@@ -64,13 +64,16 @@ def get_recipes():
         recipes.append(Recipe(name, instructions, ingredients_2d, meal_type,prep_time,veg))
     return recipes # Returns a lists of instances
 
-def extract_ingredients():
+def extract_ingredients(file_path):
     ingredients = []
-    with open('ENTER_CSV_FILE.csv', mode = 'r') as file:
+    with open(file_path, mode='r') as file:
         csv_file = csv.reader(file, delimiter=',')
+        next(csv_file)  # Skip the header row
         for row in csv_file:
-            ingredients.extend(row)
-    return ingredients
+            amount = row[0].strip() # gets quantity
+            ingredient = row[1].strip() # gets ingredients
+            ingredients.append([amount, ingredient]) #  2D array that holds the quantity and actual ingredient
+        return ingredients
 
 
 def match_ingredients(recipes, ingredients):
