@@ -1,6 +1,7 @@
 import sqlite3 as lite
 import csv
-import os
+
+import re
 
 # Connects to the recipe Database
 recipesDatabase = lite.connect('foodDatabase.db')
@@ -76,19 +77,27 @@ def extract_ingredients(file_path):
         return ingredients
 
 
-def match_ingredients(recipes, ingredients):
+def match_ingredients(recipes, available_ingredients):
     possible_recipes = []
     partial_recipes = []
-    ingredients_list = ingredients.split(',')
+
     for recipe in recipes:
-        no_ingredients = len(recipe.ingredients)
-        matching_ingredients = []
-        for ingredient in ingredients_list:
-            if ingredient in recipe.ingredients:
-                matching_ingredients.append(ingredient)
-        if len(matching_ingredients) == no_ingredients:
+        required_ingredients = recipe.ingredients
+        matched = 0
+
+        for required_amount, required_ingredient in recipe.ingredients:
+            for available_amount, available_ingredient in available_ingredients:
+                if available_ingredient == required_ingredient:
+                    if available_amount >= required_amount:
+                        matched +=1
+                    break
+                else:
+                    continue
+        total_ingredients = len(required_ingredients)
+        matched_ratio = matched / total_ingredients
+        if matched_ratio == 1.0:
             possible_recipes.append(recipe)
-        elif len(matching_ingredients) >= no_ingredients * 0.8:
+        elif matched_ratio >= 0.8 or (total_ingredients - 1 == matched):
             partial_recipes.append(recipe)
-    print(possible_recipes)
-    print(partial_recipes)
+    return possible_recipes,partial_recipes
+

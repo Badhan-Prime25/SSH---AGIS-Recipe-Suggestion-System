@@ -1,8 +1,11 @@
 import sys
+import Recipe_Logic
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QVBoxLayout, QWidget, QLabel, QTableWidget,
     QTableWidgetItem, QDialog, QFormLayout, QTextEdit, QPushButton
 )
+
+from Recipe_Logic import get_recipes, extract_ingredients
 
 
 class Recipe_Suggestions(QMainWindow):
@@ -10,6 +13,16 @@ class Recipe_Suggestions(QMainWindow):
         super().__init__()
         self.setWindowTitle("Recipe Suggestion System")
         self.setGeometry(100, 100, 600, 400)
+
+        # Importing all the valid recipes to show the students
+        available_recipe = []
+        additional_recipe = []
+        possible,partial = Recipe_Logic.match_ingredients(get_recipes(),extract_ingredients("fridge_ingredients.csv"))
+        for recipe in possible:
+            available_recipe.append([recipe.name,recipe.prep_time,recipe.meal_type,recipe.vegetarian])
+        for recipes in partial:
+            additional_recipe.append([recipes.name, recipes.prep_time, recipes.meal_type, recipes.vegetarian])
+
         # Main widget and layout
         main_widget = QWidget()
         self.setCentralWidget(main_widget)
@@ -19,13 +32,8 @@ class Recipe_Suggestions(QMainWindow):
         self.available_recipes_table = QTableWidget()
         self.setup_table(self.available_recipes_table)
         layout.addWidget(self.available_recipes_table)
-        # only usign hardcoded data initially then going to change it to actual db data
-        available_recipes = [
-            ["White Pasta", "20 Minutes", "Lunch/Dinner", "Non-Veg"],
-            ["Pancakes", "10 Minutes", "Breakfast", "Veg"],
-            ["Chicken Salad", "30 Minutes", "Dinner", "Non-Veg"],
-        ]
-        self.populate_table_(self.available_recipes_table, available_recipes)
+
+        self.populate_table_(self.available_recipes_table, available_recipe)
         # Additional Recipes Table
         layout.addWidget(QLabel("Additional Recipes"))
         self.additional_recipes_table = QTableWidget()
@@ -37,7 +45,7 @@ class Recipe_Suggestions(QMainWindow):
             ["Apple Pie", "10 Minutes", "Breakfast", "Veg"],
             ["Chicken Rice", "30 Minutes", "Dinner", "Non-Veg"],
         ]
-        self.populate_table_(self.additional_recipes_table, additional_recipes)
+        self.populate_table_(self.additional_recipes_table, additional_recipe)
         # open recipe details window
         self.available_recipes_table.cellClicked.connect(self.show_recipe_details)
         self.additional_recipes_table.cellClicked.connect(self.show_recipe_details)
@@ -74,21 +82,13 @@ class RecipeDetailsWindow(QDialog):
         self.setGeometry(150, 150, 400, 300)
 
         layout = QFormLayout(self)
-        # example hardcoded instructions nneed to change later
+        recipes = get_recipes() # gets the recipes that match the ingredients you have
         instructions = f"Instructions for {recipe_name}:\n\n"
-        if recipe_name == "White Pasta":
-            instructions += "1. Boil water\n2. Cook pasta\n3. Prepare sauce\n4. Mix and serve."
-        elif recipe_name == "Pancakes":
-            instructions += "1. Mix ingredients\n2. Heat pan\n3. Pour batter.\n4. Flip pancakes."
-        elif recipe_name == "Chicken Salad":
-            instructions += "1. Chop chicken.\n2. Prepare vegetables.\n3. Toss together."
-        elif recipe_name == "Spaghetti ":
-            instructions += "1. Cook spaghetti.\n2. Prepare meat sauce.\n3. Combine and serve."
-        elif recipe_name == "Apple Pie":
-            instructions += "1. Prepare the crust.\n2. Mix apples.\n3. Bake and serve."
-        elif recipe_name == "Chicken Rice":
-            instructions += "1. Cook chicken.\n2. Prepare rice.\n3. Mix and serve."
-        # new window to show recipe instructions from the databas
+        for recipe in recipes:
+            if recipe.name == recipe_name:
+                instructions += recipe.instructions # puts all the instructions into a new webpage
+
+        # new window to show recipe instructions from the database
         self.instructions_text = QTextEdit(self)
         self.instructions_text.setText(instructions)
         self.instructions_text.setReadOnly(True)
