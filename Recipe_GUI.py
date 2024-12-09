@@ -39,12 +39,8 @@ class Recipe_Suggestions(QMainWindow):
         self.additional_recipes_table = QTableWidget()
         self.setup_table(self.additional_recipes_table)
         layout.addWidget(self.additional_recipes_table)
-        # hardcoded data for an example
-        additional_recipes = [
-            ["Spaghetti Bolognese", "20 Minutes", "Lunch/Dinner", "Non-Veg"],
-            ["Apple Pie", "10 Minutes", "Breakfast", "Veg"],
-            ["Chicken Rice", "30 Minutes", "Dinner", "Non-Veg"],
-        ]
+
+
         self.populate_table_(self.additional_recipes_table, additional_recipe)
         # open recipe details window
         self.available_recipes_table.cellClicked.connect(self.show_recipe_details)

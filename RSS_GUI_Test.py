@@ -11,25 +11,28 @@ def app(qtbot: QtBot):
     return window
 
 def test_available_recipes_table(app): #
-    #test what is in available recipes table hardcoded data for now
+    #test what is in available recipes table database data now
     table = app.available_recipes_table
-    assert table.rowCount() == 3  # check it has 3 rows
+    assert table.rowCount() == 2  # check it has 3 rows
     assert table.columnCount() == 4  # check it has 4 columns
-    assert table.item(0, 0).text() == "White Pasta"  # check the first recipe hardcoded
+    assert table.item(0, 0).text() == "Spaghetti Bolognese"  #check first recipe database
+    assert table.item(1, 0).text() == "Vegetable Stir Fry"  # second recipe
 
 def test_additional_recipes_table(app): #
     #test additional recipes hardcoded data
     table = app.additional_recipes_table
     assert table.rowCount() == 3  # check 3 rows
     assert table.columnCount() == 4  # check 4 columns
-    assert table.item(1, 0).text() == "Apple Pie"  # check hardcoded recipe
+    assert table.item(0, 0).text() == "Chicken Salad"  # first recipe
+    assert table.item(1, 0).text() == "Mushroom Risotto"  # second recipe
+    assert table.item(2, 0).text() == "Pancakes"  # third recipe database recipes
 
 def test_recipe_details_window(app, qtbot: QtBot):
 
     table = app.available_recipes_table  # Reference the 'Available Recipes' table
-    recipe_name = table.item(0, 0).text()  # # get first row recipe of hardcoded data
+    recipe_name = table.item(0, 0).text()  #get first row recipe of database data
 
-    # Simulate clicking on the first recipe of hardcode data
+    # Simulate clicking on the first recipe of database data
     qtbot.mouseClick(table.viewport(), Qt.LeftButton, pos=table.visualRect(table.model().index(0, 0)).center())
 
     # wait for the window
@@ -45,7 +48,7 @@ def test_recipe_details_window(app, qtbot: QtBot):
 
 
     assert details_window is not None, "Recipe details window did not open."
-    assert details_window.instructions_text.toPlainText().startswith("Instructions for White Pasta:") # first instruction of hardcoded data
+    assert details_window.instructions_text.toPlainText().startswith("Instructions for Spaghetti Bolognese:") # first instruction of database data
 
     # Close the details window
     details_window.close()
